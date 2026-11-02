@@ -172,3 +172,25 @@ All candidates were retained during this audit. **Freed: 0 bytes (0.000 GB).**
 The source archive occupies about 0.112 GB; local SQL backups occupy about 0.005 GB.
 Root filesystem observation: 627,971,174,400 bytes used of 972,760,846,336 (df: 69%).
 No live data, containers, schedules, or remote backup files were changed.
+
+## Lane-owned staging cleanup (2026-11-02)
+
+Removed Banshee `~/.local/state/blr-lead/releases/optionb-build` (four files,
+45,056 allocated bytes including directory). All four SHA256 hashes matched the
+off-host committed copy at devbox Git commit `ea9d78f`; `git fsck` passed.
+The staging directory was not mounted by either live or rollback container;
+accessible process cwd/open-file checks found no use before removal.
+
+On the devbox, removed `blr_idle_monitor.py`, `blr_sleep_now.py` and
+`test_blr_sleepwake.py` from each of `rel/` and `optb/` under
+`~/.cache/claude-tmp/claude-1000/-home-blizz-dev-blacklight-retribution/70baa612-20db-4300-b0ae-1aa7403ecbe0/scratchpad/`.
+Each file was byte-compared to its retained Git blob before unlinking.
+Devbox allocated bytes removed: 49,152. Both staged `blr_stop.py` variants differ
+from the committed version and were retained, along with unique scratch/evidence.
+
+Total allocated bytes removed: **94,208 (0.000094208 decimal GB)**.
+This is the allocation of deleted entries, not a host-wide df delta; other lanes
+are concurrently reclaiming space. No dead project worktrees were present.
+No live data, newest rollback, backup configuration, other-lane bot builds,
+or historical backups lacking NAS verification were deleted. The older NAS
+verification request to banshee-realm-client remains pending.
