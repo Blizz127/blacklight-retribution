@@ -1,0 +1,10 @@
+[Unit]
+Description=Blacklight: Retribution idle monitor, every 60 s
+
+[Timer]
+OnBootSec=2min
+OnUnitInactiveSec=60s
+AccuracySec=5s
+
+[Install]
+WantedBy=timers.target

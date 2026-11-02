@@ -1,0 +1,7 @@
+#!/bin/sh
+# fake artemis: MODE=sleep dies by SIGTERM (like a Go child), MODE=exit1 exits 1 by itself, MODE=exit2pid exits 2 on TERM
+case "$MODE" in
+  exit1) sleep 1; exit 1 ;;
+  exit2) trap 'exit 2' TERM; sleep 600 & wait ;;
+  *) exec sleep 600 ;;
+esac

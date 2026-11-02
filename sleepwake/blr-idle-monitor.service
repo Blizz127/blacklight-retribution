@@ -1,0 +1,10 @@
+[Unit]
+Description=Blacklight: Retribution idle monitor tick (DRY-RUN; native sleep/wake contract)
+Documentation=file:%h/servers/blrevive-sleepwake/README.md
+
+[Service]
+Type=oneshot
+# DRY-RUN unless ~/servers/blrevive-sleepwake/ENABLE exists (then a full zero-human window runs blr_stop).
+ExecStart=/usr/bin/python3 -I -B %h/servers/blrevive-sleepwake/blr_idle_monitor.py
+TimeoutStartSec=180
+Nice=10
