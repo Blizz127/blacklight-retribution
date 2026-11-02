@@ -127,3 +127,48 @@ stackd runs DIT's pinned `blacklight_start.py`, which does a plain `docker start
 `compose up`: the compose file has drifted from the running container, and a recreate changes the ID.
 
 Tests: `python3 -B -m unittest -v test_blr_sleepwake` (33 fixture tests, no Docker; exit-code agnostic).
+
+## Nightly backup and cleanup audit (2026-11-02)
+
+Owner policy: no database migrations; preserve existing stores, use MariaDB for new stores.
+Every server requires nightly NAS backups. Remove old local backups only after verifying
+NAS coverage; retain current rollback, in-flight work and anything not yet verified.
+
+Blacklight account/progression data is in MariaDB container `zcure-db`, schema `zcure_blr`.
+The local `~/backups/zcure/zcure_blr/daily/2026-11-02.sql.gz` passed gzip validation and
+has a completed dump footer and 17 InnoDB table definitions, including Users,
+BansheeAccounts, Inventory, Loadouts and Stats. No player rows were printed.
+
+Root-owned `/usr/local/libexec/backup-nas/backup-nas.sh` already discovers `zcure-db`
+and streams `mariadb-dump --single-transaction --quick --routines --events --triggers
+--hex-blob --all-databases` to restic path `/db/zcure-db.sql`. Its enabled timer runs
+at 03:15 America/Chicago plus up to five minutes jitter. The November 2 log records
+snapshot `2aa6d19f` saved at approximately 03:21 CST. This establishes successful
+capture, not a tested ZCure restore. The separate local dump timer runs after NAS
+backup; NAS coverage of the database uses its direct stream, not that local dump.
+
+Backup-owner follow-up sent to the coordinator through its native inbox:
+- Verify `/db/zcure-db.sql` contains `zcure_blr` and perform a scoped restore check.
+  The current monthly restore test covers FFXI and SandalCore, not ZCure.
+- Confirm/add file coverage for `/home/blizz/servers/blrevive/config`, especially
+  `BLRevive/banshee_auth` and `botmatch`, plus `/home/blizz/servers/blrevive-sleepwake`
+  and `/home/blizz/.local/state/blr-lead`. Sidecar file consistency must be accounted
+  for separately from the transactional database dump; it is not proven here.
+- Before cleanup, verify individual NAS path/content coverage of
+  `/home/blizz/backups/zcure/zcure_blr`, `~/servers/blrevive/archive`,
+  `~/servers/blrevive/rollout-backup-20260929-053723`, and old lead backups/releases.
+  Files snapshot `0e429a91` exists, but that alone does not establish these paths.
+- NAS retention reported `forget-db` and `forget-files` warnings involving lock
+  `9ee9c310`. The shared backup owner must investigate; this lane did not unlock it.
+
+Reading `/etc/restic/include.txt` and `exclude.txt` was permission-denied. No sudo,
+credential access or permission workaround was attempted. Cleanup remains pending
+verified NAS copies, not routine coordinator approval.
+
+Retain `blrevive-pre-optionb` and its anonymous assets volume, data rollback
+`~/.local/state/blr-lead/backups/optionb-20261102T142502Z`, prior tools
+`~/.local/state/blr-lead/releases/20261102T142639Z`, and the newest local SQL dump.
+All candidates were retained during this audit. **Freed: 0 bytes (0.000 GB).**
+The source archive occupies about 0.112 GB; local SQL backups occupy about 0.005 GB.
+Root filesystem observation: 627,971,174,400 bytes used of 972,760,846,336 (df: 69%).
+No live data, containers, schedules, or remote backup files were changed.
