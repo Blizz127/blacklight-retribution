@@ -24,7 +24,7 @@ DIT accepted option A on 2026-11-02, and the layout mirrors ROSE (`~/dev/rose-on
 
 Deployed sha256:
 - `blr_stop.py` 3b8e9d57… (pinned by stackd; CONTAINER 0df4b910…, ACCEPTED_EXIT_CODE 0)
-- `blr_sleep_now.py` 029251b2… (deployed 2026-11-03; DIT re-pin confirmation pending)
+- `blr_sleep_now.py` 029251b2… (deployed 2026-11-03; pinned by stackd r58)
 - `blr_idle_monitor.py` 838309ec…
 
 stackd row: `readiness_only`, health `blacklight_start.py --sleep-health`, wake `--wake`, sleep = `blr_sleep_now.py`,
@@ -254,7 +254,11 @@ systemd daemon-reload was needed; the timer stayed active. On-host help returned
 remained unchanged. No game restart, wake, sleep or save modification occurred.
 
 Deployment receipt and full hash were sent directly to DIT and the coordinator.
-DIT's active re-pin confirmation is pending; Blacklight can show a temporary
-pin error until then. This supersedes the local-only deployment status above.
+DIT confirmed stackd r58 active since 05:47:09Z: the only change is the
+Blacklight sleep-button pin, verified on disk. Blacklight reads asleep with
+native idle sleep, no pin error, and no game in error. Launcher SLEEP argv is
+unchanged. DIT rollback: `backups/pre-r58-*/20-docker-group.conf`. This closes
+the deployment and supersedes the local-only status above; evidence is DIT's
+confirmation, without another server test from this lane.
 DIT also reports AI-only bot chat live via `dit-blr-chat-bridge`; actual in-game
 chat has not been playtested by this lane.
