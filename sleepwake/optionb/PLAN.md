@@ -68,3 +68,11 @@ The container can't be changed in place, so B needs a new container, and that me
 - Only `blr_stop.py`'s sha changes.
 - `blr_sleep_now.py` (664b72c4) and `blr_idle_monitor.py` (838309ec) stay byte-identical, because they import blr_stop.
 - The tests are exit-code agnostic and pass under both A (2) and B (0).
+
+## Local payload-file protection (2026-11-03)
+
+`recreate.py <saved-inspect.json> --body <new-output.json>` requires an absent
+output path. Existing files, symlinks (including dangling ones), and the input
+inspect path are refused without alteration. Successful new outputs retain mode
+0600 because the full payload can contain environment values. The command only
+writes the payload; it does not create or change any Docker container.

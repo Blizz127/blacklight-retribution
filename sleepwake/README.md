@@ -315,3 +315,18 @@ diff whitespace checks pass. Earlier pending-status prose was clarified as
 historical and linked to its completed follow-up. No Banshee files, runtime
 scripts or saves changed. The only recorded external TODO remains ZCure restore
 verification with the backup owner; it is not part of this local audit.
+
+## Local recreate-output guard (2026-11-03)
+
+Extended the release/rollback preservation check to `optionb/recreate.py --body`.
+Its former O_TRUNC open could overwrite an existing payload, follow a symlink,
+or destroy the saved input inspect when given the same output path. Synthetic
+subprocess regressions reproduced all four cases (regular file, symlink,
+dangling symlink and input-file reuse). The output now uses O_CREAT|O_EXCL and
+reports a refusal for occupied paths; no check-then-open overwrite window.
+
+Focused validation: two tests, covering those four refusal cases plus successful
+new-file creation, pass. They verify preserved bytes/links, complete generated
+JSON, 0600 permissions and no environment-value output. Only synthetic fixtures
+were used. No Docker invocation, Banshee change, real save access or push occurred.
+The local recreate helper and release helper now both refuse existing outputs.

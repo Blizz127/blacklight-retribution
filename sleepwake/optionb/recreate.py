@@ -4,7 +4,7 @@ Copies Config/HostConfig verbatim and changes only: Entrypoint/Cmd (wrapper), Im
 (dropped), Hostname (docker default), the anonymous assets volume (re-attached BY NAME) and the new ro wrapper bind.
 
   recreate.py <old-inspect.json>              dry run: prints the body with Env values redacted
-  recreate.py <old-inspect.json> --body OUT   writes the full body (0600) for POST /containers/create?name=blrevive
+  recreate.py <old-inspect.json> --body OUT   creates a NEW full-body file (0600); refuses existing paths
   recreate.py --diff <old-inspect.json> <new-inspect.json>   prints every differing field (Env values redacted)
 """
 import json
@@ -81,7 +81,10 @@ if __name__ == '__main__':
         raise SystemExit(0)
     bd = body(json.load(open(sys.argv[1]))[0])
     if len(sys.argv) > 3 and sys.argv[2] == '--body':
-        fd = os.open(sys.argv[3], os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+        try:
+            fd = os.open(sys.argv[3], os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+        except FileExistsError:
+            raise SystemExit('refusing existing output: ' + sys.argv[3])
         with os.fdopen(fd, 'w') as f:
             json.dump(bd, f)
         print('wrote', sys.argv[3])
