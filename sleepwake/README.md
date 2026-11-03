@@ -24,7 +24,7 @@ DIT accepted option A on 2026-11-02, and the layout mirrors ROSE (`~/dev/rose-on
 
 Deployed sha256:
 - `blr_stop.py` 3b8e9d57… (pinned by stackd; CONTAINER 0df4b910…, ACCEPTED_EXIT_CODE 0)
-- `blr_sleep_now.py` 664b72c4… (pinned by stackd)
+- `blr_sleep_now.py` 029251b2… (deployed 2026-11-03; DIT re-pin confirmation pending)
 - `blr_idle_monitor.py` 838309ec…
 
 stackd row: `readiness_only`, health `blacklight_start.py --sleep-health`, wake `--wake`, sleep = `blr_sleep_now.py`,
@@ -104,9 +104,9 @@ Why it's save-safe:
 Option B is LIVE (see the status above). The wrapper, plan and recreate tool are in `optionb/`.
 
 ## Sleep button exit codes (`blr_sleep_now.py`)
-**Deployed version `664b72c4` still ignores all arguments, including `--help`, and every run is a real sleep request.** Use `blr_sleep_now.decide()` for read-only checks on Banshee until the coordinated deployment below. On 2026-11-02 at 14:28:09Z a stray `--help` invocation started the option B test sleep.
+**Deployed version `029251b2` handles help without requesting sleep.** The previous `664b72c4` ignored all arguments. Use `blr_sleep_now.decide()` for read-only state checks. On 2026-11-02 at 14:28:09Z a stray `--help` invocation started the option B test sleep.
 
-The local fix parses arguments first: `--help`/`-h` print usage and exit 0; unsupported arguments print a usage error and exit 2, without host checks, Docker inspection, locks or stop dispatch. No-argument invocation retains the existing stackd contract below. CLI usage exit codes apply only when arguments are supplied.
+The deployed fix parses arguments first: `--help`/`-h` print usage and exit 0; unsupported arguments print a usage error and exit 2, without host checks, Docker inspection, locks or stop dispatch. No-argument invocation retains the existing stackd contract below. CLI usage exit codes apply only when arguments are supplied.
 
 | Code | Output | Meaning |
 | --- | --- | --- |
@@ -238,3 +238,23 @@ New CLI tests exercise help, unknown arguments and unchanged no-argument dispatc
 Deployment is pending coordinated DIT stackd hash re-pin; do not copy the new
 script alone, since that would invalidate the live binding. No build/full suite
 was run under high devbox load.
+
+## CLI fix deployment (2026-11-03 05:46:47Z)
+
+DIT explicitly sequenced native deployment before its staged re-pin. The new
+`blr_sleep_now.py` is deployed with verified SHA256 `029251b221f47ad9981fd4dd88e3894ce1f54c7361adbca1b6e977399f010264`.
+Backup: `~/.local/state/blr-lead/releases/sleep-cli-20261103T054647Z`
+(previous button and systemd unit, copied and byte-verified before replacement).
+Keep this as the newest CLI rollback in addition to the option B container/data
+rollback. Stop/wake exclusion locks covered the file swap.
+
+The unit description now says ENABLE controls automatic sleep. Only a user
+systemd daemon-reload was needed; the timer stayed active. On-host help returned
+0, an invalid argument returned 2, and the container ID/status/start/finish times
+remained unchanged. No game restart, wake, sleep or save modification occurred.
+
+Deployment receipt and full hash were sent directly to DIT and the coordinator.
+DIT's active re-pin confirmation is pending; Blacklight can show a temporary
+pin error until then. This supersedes the local-only deployment status above.
+DIT also reports AI-only bot chat live via `dit-blr-chat-bridge`; actual in-game
+chat has not been playtested by this lane.

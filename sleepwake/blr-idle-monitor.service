@@ -1,5 +1,5 @@
 [Unit]
-Description=Blacklight: Retribution idle monitor tick (DRY-RUN; native sleep/wake contract)
+Description=Blacklight: Retribution idle monitor tick (ENABLE controls automatic sleep)
 Documentation=file:%h/servers/blrevive-sleepwake/README.md
 
 [Service]
