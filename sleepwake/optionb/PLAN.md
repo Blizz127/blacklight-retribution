@@ -64,7 +64,7 @@ The container can't be changed in place, so B needs a new container, and that me
 - **Rollback:** the lead restores `blrevive-pre-optionb`; DIT restores the previous stackd release.
 
 ## Lead release at step 6 (pre-staged)
-`optionb/make_release.sh <new id> <dir>` writes the new pinned `CONTAINER` and `ACCEPTED_EXIT_CODE = 0` into `blr_stop.py`, runs the 33 tests, and prints the shas.
+`optionb/make_release.sh <new id> <new dir>` requires an absent output directory (existing directories and symlinks are refused), then writes the new pinned `CONTAINER` and `ACCEPTED_EXIT_CODE = 0` into `blr_stop.py`, runs the 33 tests, and prints the shas.
 - Only `blr_stop.py`'s sha changes.
 - `blr_sleep_now.py` (664b72c4) and `blr_idle_monitor.py` (838309ec) stay byte-identical, because they import blr_stop.
 - The tests are exit-code agnostic and pass under both A (2) and B (0).

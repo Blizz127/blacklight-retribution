@@ -164,8 +164,9 @@ Backup-owner follow-up sent to the coordinator through its native inbox:
   `9ee9c310`. The shared backup owner must investigate; this lane did not unlock it.
 
 Reading `/etc/restic/include.txt` and `exclude.txt` was permission-denied. No sudo,
-credential access or permission workaround was attempted. Cleanup remains pending
-verified NAS copies, not routine coordinator approval.
+credential access or permission workaround was attempted. At this audit checkpoint, cleanup awaited
+verified NAS copies, not routine coordinator approval. That dependency was later
+resolved in the November 3 NAS-verified cleanup recorded below.
 
 Retain `blrevive-pre-optionb` and its anonymous assets volume, data rollback
 `~/.local/state/blr-lead/backups/optionb-20261102T142502Z`, prior tools
@@ -195,7 +196,8 @@ This is the allocation of deleted entries, not a host-wide df delta; other lanes
 are concurrently reclaiming space. No dead project worktrees were present.
 No live data, newest rollback, backup configuration, other-lane bot builds,
 or historical backups lacking NAS verification were deleted. The older NAS
-verification request to banshee-realm-client remains pending.
+verification request was still pending at this checkpoint; see the completed
+November 3 NAS-verified cleanup below.
 
 ## NAS-verified historical cleanup (2026-11-03)
 
@@ -235,8 +237,8 @@ Local sleep-button fix SHA256:
 Validation: five focused tests (`SleepNowCLI` and `SleepNow`) passed; subprocess
 calls were mocked or fixture-based, with no live server action or real save access.
 New CLI tests exercise help, unknown arguments and unchanged no-argument dispatch.
-Deployment is pending coordinated DIT stackd hash re-pin; do not copy the new
-script alone, since that would invalidate the live binding. No build/full suite
+At this local-test checkpoint deployment awaited a coordinated DIT stackd
+hash re-pin. The subsequent deployment and r58 confirmation below close it. No build/full suite
 was run under high devbox load.
 
 ## CLI fix deployment (2026-11-03 05:46:47Z)
@@ -295,3 +297,21 @@ re-pin or packaging checks in response to stale stall-watch checkpoints.
 The external ZCure restore-test TODO remains with banshee-realm-client; AI-only
 bot chat awaits ordinary player use, not an artificial wake from this lane.
 Next action: handle a concrete new owner task, reported bug, or external result.
+
+## Local release-path audit (2026-11-03)
+
+Audited helper paths, TODO/FIXME references and stale documentation statuses.
+Top gap: `mkdir -p` reused an existing output and `cp` overwrote its files,
+including through a directory symlink into a retained release. Both isolated
+regressions reproduced the overwrite before the fix. The helper now claims a
+fresh directory with `mkdir` before copying; existing directories and symlinks
+are refused without modifying their contents. Missing parent directories can
+still be created. Use a new output path for each attempt; failed staging remains
+available for inspection and is never silently reused.
+
+All four focused helper tests pass (new output succeeds, failed tests abort,
+existing release is preserved, symlink target is preserved); shell syntax and
+diff whitespace checks pass. Earlier pending-status prose was clarified as
+historical and linked to its completed follow-up. No Banshee files, runtime
+scripts or saves changed. The only recorded external TODO remains ZCure restore
+verification with the backup owner; it is not part of this local audit.
