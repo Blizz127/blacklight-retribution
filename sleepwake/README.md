@@ -330,3 +330,27 @@ new-file creation, pass. They verify preserved bytes/links, complete generated
 JSON, 0600 permissions and no environment-value output. Only synthetic fixtures
 were used. No Docker invocation, Banshee change, real save access or push occurred.
 The local recreate helper and release helper now both refuse existing outputs.
+
+## Release/rollback helper coverage inventory (2026-11-03)
+
+Repository-wide helper inventory confirms the refuse-overwrite staging work is
+complete. There is no additional rollback-output script in this repository.
+
+| Entry point | Writes and protection | Existing verification |
+| --- | --- | --- |
+| `optionb/make_release.sh` | Creates a fresh output directory; existing output directories/symlinks are refused before copying. Failed fixture tests abort before hashes. | `test_make_release.py`: four focused tests; passed in a34ef16. |
+| `optionb/recreate.py --body` | Creates a new 0600 payload with O_EXCL; existing files, symlinks and input-file reuse are refused. | `test_recreate.py`: refusal subcases plus complete/private output; passed in 48e9787. |
+| `optionb/recreate.py` default / `--diff` | Reads saved inspect data and prints redacted output; no file writes. | Source inspected during this inventory. |
+| `optionb/blr-init.sh` and `optionb/fake/artemis` | Process wrapper and test stand-in; no release or rollback file outputs. | Source inspected during this inventory; neither executed. |
+
+Runtime functions in `blr_stop.py` write lock files, atomic marker/state updates,
+ratings backups and receipts. They are not release-staging helpers and were not
+changed by this audit. In particular, this inventory does not claim immutable or
+collision-proof runtime backup/receipt names. Applying a blanket exclusive-create
+rule to runtime marker updates would break their intended state transitions.
+
+This final inventory changed documentation only. No tests were rerun because the
+previous focused checks already cover the unchanged implementations. No server,
+save, runtime pin, or remote file was changed; no push was made. Further runtime
+backup/receipt work would be a distinct change with its own focused validation,
+not unfinished release-helper coverage.
