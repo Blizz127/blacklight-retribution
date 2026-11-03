@@ -1,10 +1,13 @@
 import fcntl
+import contextlib
+import io
 import json
 import os
 import subprocess
 import tempfile
 import time
 import unittest
+from unittest import mock
 from pathlib import Path
 
 import blr_idle_monitor as mon
@@ -262,6 +265,33 @@ class SleepNow(Env):
         docker = Docker()
         self.decide(docker)
         self.assertFalse(docker.stopped())
+
+
+class SleepNowCLI(unittest.TestCase):
+    def test_help_and_invalid_arguments_have_no_side_effects(self):
+        for argv, code in [(['--help'], 0), (['-h'], 0), (['--invalid'], 2), (['sleep'], 2)]:
+            with self.subTest(argv=argv), mock.patch.object(now_btn.socket, 'gethostname', return_value='banshee'), \
+                    mock.patch.object(now_btn, 'decide') as decide, \
+                    mock.patch.object(now_btn.subprocess, 'run') as run, \
+                    contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
+                with self.assertRaises(SystemExit) as raised:
+                    now_btn.main(argv)
+                self.assertEqual(raised.exception.code, code)
+                decide.assert_not_called()
+                run.assert_not_called()
+
+    def test_no_arguments_still_dispatches_the_guarded_stop(self):
+        with mock.patch.object(now_btn.socket, 'gethostname', return_value='banshee'), \
+                mock.patch.object(now_btn, 'decide', return_value=(0, {'state': 'stopping', 'eta_s': 15})) as decide, \
+                mock.patch.object(now_btn.subprocess, 'run', return_value=mock.Mock(returncode=0)) as run, \
+                contextlib.redirect_stdout(io.StringIO()) as output:
+            with self.assertRaises(SystemExit) as raised:
+                now_btn.main([])
+            self.assertEqual(raised.exception.code, 0)
+            decide.assert_called_once_with()
+            run.assert_called_once()
+            self.assertEqual(run.call_args.args[0][-5:], ['--mode', 'sleep', '--execute', '--by', 'blr-stop'])
+            self.assertEqual(json.loads(output.getvalue())['state'], 'stopping')
 
 
 class Monitor(Env):

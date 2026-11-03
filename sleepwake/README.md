@@ -104,7 +104,9 @@ Why it's save-safe:
 Option B is LIVE (see the status above). The wrapper, plan and recreate tool are in `optionb/`.
 
 ## Sleep button exit codes (`blr_sleep_now.py`)
-**It ignores all arguments, and every run is a REAL sleep request** (even `--help`). Use `blr_sleep_now.decide()` from Python for a read-only check. On 2026-11-02 at 14:28:09Z a stray `blr_sleep_now.py --help` started the option B test sleep. It was gated at 0 humans and harmless.
+**Deployed version `664b72c4` still ignores all arguments, including `--help`, and every run is a real sleep request.** Use `blr_sleep_now.decide()` for read-only checks on Banshee until the coordinated deployment below. On 2026-11-02 at 14:28:09Z a stray `--help` invocation started the option B test sleep.
+
+The local fix parses arguments first: `--help`/`-h` print usage and exit 0; unsupported arguments print a usage error and exit 2, without host checks, Docker inspection, locks or stop dispatch. No-argument invocation retains the existing stackd contract below. CLI usage exit codes apply only when arguments are supplied.
 
 | Code | Output | Meaning |
 | --- | --- | --- |
@@ -219,3 +221,20 @@ cleanup in this pass. Including prior staging cleanup, cumulative allocation
 removed is **116,244,480 bytes (0.116244480 GB)** across both hosts.
 ZCure dump content is verified, but its actual restore test remains realm-client's
 open TODO. No backup-script or database-schema changes were made here.
+
+## Monitor reconciliation and sleep-button CLI fix (2026-11-03)
+
+Read-only monitor check: timer active, ENABLE present, no HOLD/deploy lock;
+confirmed automatic sleep by `blr-idle-monitor` at `2026-11-03T05:28:54.007849122Z`,
+exit 0. Deployed hashes remain the recorded stop `3b8e9d57`, sleep button
+`664b72c4` and monitor `838309ec`. The dry-run/live cutover is already complete.
+DIT was sent this evidence to reconcile the stale review checkpoint.
+
+Local sleep-button fix SHA256:
+`029251b221f47ad9981fd4dd88e3894ce1f54c7361adbca1b6e977399f010264`.
+Validation: five focused tests (`SleepNowCLI` and `SleepNow`) passed; subprocess
+calls were mocked or fixture-based, with no live server action or real save access.
+New CLI tests exercise help, unknown arguments and unchanged no-argument dispatch.
+Deployment is pending coordinated DIT stackd hash re-pin; do not copy the new
+script alone, since that would invalidate the live binding. No build/full suite
+was run under high devbox load.

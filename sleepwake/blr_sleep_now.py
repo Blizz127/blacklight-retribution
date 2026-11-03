@@ -12,6 +12,7 @@ Exit codes (DIT contract):
   13 {"code":"<reason>"}                other refusal (hold_present, recent_demand)
   1  {"error":"<reason>"}               anything else (unknown state never sleeps)
 """
+import argparse
 import json
 from pathlib import Path
 import socket
@@ -58,7 +59,10 @@ def decide(runner=b.run, stop_lock=None, wake_lock=None, hold=None, deploy_lock=
     return 0, dict(state='stopping', eta_s=ETA_S)
 
 
-def main():
+def main(argv=None):
+    parser = argparse.ArgumentParser(
+        description='Request a Blacklight sleep after safety checks. Running without arguments requests a real sleep.')
+    parser.parse_args(argv)
     if socket.gethostname().lower() not in ('banshee', 'bansheerealm'):
         print(json.dumps(dict(error='wrong_host')))
         raise SystemExit(1)
