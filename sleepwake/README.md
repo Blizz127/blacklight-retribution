@@ -262,3 +262,19 @@ the deployment and supersedes the local-only status above; evidence is DIT's
 confirmation, without another server test from this lane.
 DIT also reports AI-only bot chat live via `dit-blr-chat-bridge`; actual in-game
 chat has not been playtested by this lane.
+
+## Completed local follow-up: release-helper failure propagation (2026-11-03)
+
+The runtime backlog is complete. Check `optionb/make_release.sh`: its POSIX shell
+pipeline sends unittest output through `tail`, potentially hiding a failed test
+exit status. Reproduce with a tiny failing fixture, fix propagation, and verify
+both success and failure with isolated temporary release directories. This work
+is local tooling only; no live scripts, stackd pins, saves or server cycles change.
+
+Result: reproduced the bug with a failing unittest fixture (helper incorrectly
+returned 0), then removed the output pipeline so `set -e` sees unittest's actual
+exit status. Failed tests now stop before release hashes are printed and retain
+full diagnostics. Both isolated helper regressions pass (failure rejects release,
+success prints hashes), and `sh -n` passes. No full game suite or server build was
+run. The fix is committed locally; the historical copy on Banshee was not invoked
+or changed. No further runtime task is pending from this follow-up.

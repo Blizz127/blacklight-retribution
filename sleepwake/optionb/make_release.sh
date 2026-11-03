@@ -9,5 +9,6 @@ sed -i -e "s/^CONTAINER = '[0-9a-f]\{64\}'/CONTAINER = '$id'/" \
        -e 's/^ACCEPTED_EXIT_CODE = 2 .*/ACCEPTED_EXIT_CODE = 0       # option B: blr-init.sh wrapper exits 0 on a requested stop/' \
        -e 's/ExitCode exactly 2,/ExitCode exactly ACCEPTED_EXIT_CODE (0, option B),/' "$out"/blr_stop.py
 grep -q "^CONTAINER = '$id'" "$out"/blr_stop.py && grep -q '^ACCEPTED_EXIT_CODE = 0 ' "$out"/blr_stop.py
-(cd "$out" && python3 -B -m unittest test_blr_sleepwake 2>&1 | tail -1)
+# Preserve unittest's status: a POSIX pipeline would report tail's success instead.
+(cd "$out" && python3 -B -m unittest test_blr_sleepwake)
 (cd "$out" && sha256sum blr_stop.py blr_sleep_now.py blr_idle_monitor.py)
