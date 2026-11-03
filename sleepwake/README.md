@@ -194,3 +194,28 @@ are concurrently reclaiming space. No dead project worktrees were present.
 No live data, newest rollback, backup configuration, other-lane bot builds,
 or historical backups lacking NAS verification were deleted. The older NAS
 verification request to banshee-realm-client remains pending.
+
+## NAS-verified historical cleanup (2026-11-03)
+
+The owner relayed banshee-realm-client's path receipts for files snapshot
+`e1ca0b29` and database snapshot `9bac58f1`, then authorized covered cleanup.
+Removed the covered historical archive contents (excluding all `.git/logs`
+entries), September rollout backup, superseded lead backups/releases and older
+SQL dumps. Kept the option B data rollback, `20261102T142639Z` tools rollback,
+newest ratings backup `20261102T150014Z`, and newest SQL `2026-11-02.sql.gz`.
+Live config, containers and anonymous assets volume were untouched.
+
+Deletion checked candidate timestamps against the snapshot, container mounts,
+accessible process references, and inactive NAS/local database backup services.
+Removed 2,214 files and 394 empty directories; allocated bytes reclaimed:
+**116,150,272 (0.116150272 GB)** on Banshee. This accounts for hardlinks and
+removed directory allocation rather than attributing concurrent host-wide df
+changes to this lane. Full path receipt: `../audit/cleanup-20261103.json`.
+
+Post-check: confirmed asleep marker remains valid; live and rollback containers
+remain exited with their expected exit codes; retained SQL passes gzip validation.
+All 31 uncovered reflog files remain with their parent directories. No new devbox
+cleanup in this pass. Including prior staging cleanup, cumulative allocation
+removed is **116,244,480 bytes (0.116244480 GB)** across both hosts.
+ZCure dump content is verified, but its actual restore test remains realm-client's
+open TODO. No backup-script or database-schema changes were made here.
