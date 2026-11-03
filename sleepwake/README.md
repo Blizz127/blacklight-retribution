@@ -128,7 +128,7 @@ then does one of two things:
 stackd runs DIT's pinned `blacklight_start.py`, which does a plain `docker start` of the pinned ID. Never use
 `compose up`: the compose file has drifted from the running container, and a recreate changes the ID.
 
-Tests: `python3 -B -m unittest -v test_blr_sleepwake` (33 fixture tests, no Docker; exit-code agnostic).
+Tests: `python3 -B -m unittest -v test_blr_sleepwake` (35 fixture tests, no Docker; exit-code agnostic).
 
 ## Nightly backup and cleanup audit (2026-11-02)
 
@@ -278,3 +278,20 @@ full diagnostics. Both isolated helper regressions pass (failure rejects release
 success prints hashes), and `sh -n` passes. No full game suite or server build was
 run. The fix is committed locally; the historical copy on Banshee was not invoked
 or changed. No further runtime task is pending from this follow-up.
+
+## Release packaging smoke and current handoff (2026-11-03)
+
+Ran the fixed helper against the actual local source in a fresh temporary output
+with a synthetic 64-hex container ID. It exited 0; all 35 packaged fixture tests
+passed in 0.088 seconds. Verified the ID was the only stop-script change, accepted
+exit code remained 0, the other three copied files were byte-identical, and all
+three printed SHA256 hashes matched their outputs. Source files were unchanged;
+temporary output was removed. No deployment, Docker access or real saves.
+
+This completes the release-helper follow-up, including fixture failure/success
+regressions and real-source packaging. There is no next unblocked implementation
+item in the recorded handoff. Do not repeat the completed monitor cutover, CLI
+re-pin or packaging checks in response to stale stall-watch checkpoints.
+The external ZCure restore-test TODO remains with banshee-realm-client; AI-only
+bot chat awaits ordinary player use, not an artificial wake from this lane.
+Next action: handle a concrete new owner task, reported bug, or external result.
